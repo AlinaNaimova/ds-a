@@ -14,18 +14,64 @@ public class HashMap<K, V> implements Iterable<HashMap.Entity> {
         return new HashMapIterator();
     }
 
+    /**
+     * Итератор для прохода по элементам HashMap.
+     */
+
     class HashMapIterator implements Iterator<HashMap.Entity>{
+        int bucketIndex = 0;// Индекс текущей корзины
+        int nodeIndex = 0;// Индекс текущего узла в списке
+        Entity entity; // Текущий элемент итератора
+
+        /**
+         * Проверяет, есть ли следующий элемент в HashMap.
+         * @return true, если следующий элемент есть, и false в противном случае
+         */
 
         @Override
         public boolean hasNext() {
-            //TODO: Подумать головой, ведь это домашнее задание
+            // Проходим по всем корзинам, начиная с текущей
+            for (int i = bucketIndex; i < buckets.length; i++){
+                Bucket<K, V> bucket = buckets[i];
+                if (bucket != null){
+                    Bucket.Node node = bucket.head;
+
+                    int j = 0;
+                    // Проходим по всем узлам списка корзины, начиная с текущего
+                    while (node != null){
+
+                        if (j < nodeIndex) {
+                            // Если узел уже был пройден, переходим к следующему
+                            j ++;
+                            node = node.next;
+                            continue;
+                        }
+                        // Создаем элемент итератора из значения узла
+                        entity = new Entity();
+                        entity.key = (K)node.value.key;
+                        entity.value = (V)node.value.value;
+                        nodeIndex ++;
+                        return true;
+                    }
+                    // Если все узлы корзины пройдены, сбрасываем индекс узла
+                    nodeIndex = 0;
+                }
+
+                bucketIndex ++;
+            }
+
+            // Если все корзины до конца перебраны, значит элементов больше нет, возвращаем false
+
             return false;
         }
 
+        /**
+         * Возвращает следующий элемент итератора.
+         * @return следующий элемент итератора
+         */
         @Override
         public Entity next() {
-            //TODO: Подумать головой, ведь это домашнее задание
-            return null;
+            return entity;
         }
     }
 
